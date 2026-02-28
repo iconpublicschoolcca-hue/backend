@@ -43,11 +43,10 @@ const commitSchema = new mongoose.Schema({
     name: String,
     reason: String,
     points: Number,
-    teacher: String
+    teacher: String,        // teacher entered in form
+    authorizedBy: String    // determined by password
 },
-
-{timestamps: true}
-)
+{ timestamps: true })
 //</schema>
 const House= mongoose.model("House", houseSchema);
 
@@ -111,9 +110,9 @@ app.get('/api/trojan_commit', async (req, res) => {
 // ---------------------- POST: Add a commit to Titan ----------------------
 app.post("/api/titan_commit", async (req, res) => {
     try {
-        const { name, reason, points, teacher } = req.body;
+        const { name, reason, points, teacher, authorizedBy } = req.body;
 
-        if (!name || !reason || points === undefined || !teacher) {
+        if (!name || !reason || points === undefined || !teacher || !authorizedBy) {
             return res.status(400).json({
                 success: false,
                 message: "All fields required"
@@ -124,7 +123,8 @@ app.post("/api/titan_commit", async (req, res) => {
             name,
             reason,
             points,
-            teacher
+            teacher,
+            authorizedBy
         });
 
         await commit.save();
@@ -145,13 +145,13 @@ app.post("/api/titan_commit", async (req, res) => {
 // ---------------------- POST: Phoenix ----------------------
 app.post("/api/phoenix_commit", async (req, res) => {
     try {
-        const { name, reason, points, teacher } = req.body;
+        const { name, reason, points, teacher, authorizedBy } = req.body;
 
-        if (!name || !reason || points === undefined || !teacher) {
+        if (!name || !reason || points === undefined || !teacher || !authorizedBy) {
             return res.status(400).json({ success: false, message: "All fields required" });
         }
 
-        const commit = new Phoenix_House_Commits({ name, reason, points, teacher });
+        const commit = new Phoenix_House_Commits({ name, reason, points, teacher, authorizedBy});
         await commit.save();
 
         await House.findOneAndUpdate(
@@ -170,13 +170,13 @@ app.post("/api/phoenix_commit", async (req, res) => {
 // ---------------------- POST: Unicorn ----------------------
 app.post("/api/unicorn_commit", async (req, res) => {
     try {
-        const { name, reason, points, teacher } = req.body;
+        const { name, reason, points, teacher, authorizedBy } = req.body;
 
-        if (!name || !reason || points === undefined || !teacher) {
+        if (!name || !reason || points === undefined || !teacher || !authorizedBy) {
             return res.status(400).json({ success: false, message: "All fields required" });
         }
 
-        const commit = new Unicorn_House_Commits({ name, reason, points, teacher });
+        const commit = new Unicorn_House_Commits({ name, reason, points, teacher, authorizedBy});
         await commit.save();
 
         await House.findOneAndUpdate(
@@ -195,13 +195,13 @@ app.post("/api/unicorn_commit", async (req, res) => {
 // ---------------------- POST: Trojan ----------------------
 app.post("/api/trojan_commit", async (req, res) => {
     try {
-        const { name, reason, points, teacher } = req.body;
+        const { name, reason, points, teacher, authorizedBy } = req.body;
 
-        if (!name || !reason || points === undefined || !teacher) {
+        if (!name || !reason || points === undefined || !teacher || !authorizedBy) {
             return res.status(400).json({ success: false, message: "All fields required" });
         }
 
-        const commit = new Trojan_House_Commits({ name, reason, points, teacher });
+        const commit = new Trojan_House_Commits({ name, reason, points, teacher, authorizedBy});
         await commit.save();
 
         await House.findOneAndUpdate(

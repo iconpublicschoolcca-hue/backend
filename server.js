@@ -2,6 +2,9 @@
 import express from 'express'
 import cors from 'cors'
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 //</import>
 //<variables>
 const app = express()
@@ -20,7 +23,7 @@ app.use(cors({
 
 const connectDB = async () => {
     try{
-        const conn = await mongoose.connect("mongodb+srv://iconpublicschoolcca_db_user:123@cca.bunafrl.mongodb.net/")
+        const conn = await mongoose.connect(process.env.MONGODB_URI)
         console.log(`DB at port: ${conn.connection.host}`)
     } catch(err){
         console.log(err);
@@ -39,7 +42,8 @@ const houseSchema = new mongoose.Schema({
 const commitSchema = new mongoose.Schema({
     name: String,
     reason: String,
-    points: Number
+    points: Number,
+    teacher: String
 },
 
 {timestamps: true}
@@ -107,24 +111,33 @@ app.get('/api/trojan_commit', async (req, res) => {
 // ---------------------- POST: Add a commit to Titan ----------------------
 app.post("/api/titan_commit", async (req, res) => {
     try {
-        const { name, reason, points } = req.body;
+        const { name, reason, points, teacher } = req.body;
 
-        if (!name || !reason || points === undefined) {
+        if (!name || !reason || points === undefined || !teacher) {
             return res.status(400).json({
                 success: false,
-                message: "name, reason and points are required"
+                message: "All fields required"
             });
         }
 
-        const commit = new Titan_House_Commits({ name, reason, points });
+        const commit = new Titan_House_Commits({
+            name,
+            reason,
+            points,
+            teacher
+        });
+
         await commit.save();
 
-        await House.findOneAndUpdate({name: "titan"}, {$inc: {points: points}}, {new: true})
+        await House.findOneAndUpdate(
+            { name: "titan" },
+            { $inc: { points: points } }
+        );
 
-        res.status(201).json({ success: true, message: "Commit added", data: commit });
+        res.status(201).json({ success: true, message: "Commit added" });
+
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ success: false, message: "server error" });
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
@@ -132,24 +145,24 @@ app.post("/api/titan_commit", async (req, res) => {
 // ---------------------- POST: Phoenix ----------------------
 app.post("/api/phoenix_commit", async (req, res) => {
     try {
-        const { name, reason, points } = req.body;
+        const { name, reason, points, teacher } = req.body;
 
-        if (!name || !reason || points === undefined) {
-            return res.status(400).json({
-                success: false,
-                message: "name, reason and points are required"
-            });
+        if (!name || !reason || points === undefined || !teacher) {
+            return res.status(400).json({ success: false, message: "All fields required" });
         }
 
-        const commit = new Phoenix_House_Commits({ name, reason, points });
+        const commit = new Phoenix_House_Commits({ name, reason, points, teacher });
         await commit.save();
 
-        await House.findOneAndUpdate({name: "phoenix"}, {$inc: {points: points}}, {new: true})
+        await House.findOneAndUpdate(
+            { name: "phoenix" },
+            { $inc: { points: points } }
+        );
 
-        res.status(201).json({ success: true, message: "Commit added", data: commit });
+        res.status(201).json({ success: true, message: "Commit added" });
+
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ success: false, message: "server error" });
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
@@ -157,24 +170,24 @@ app.post("/api/phoenix_commit", async (req, res) => {
 // ---------------------- POST: Unicorn ----------------------
 app.post("/api/unicorn_commit", async (req, res) => {
     try {
-        const { name, reason, points } = req.body;
+        const { name, reason, points, teacher } = req.body;
 
-        if (!name || !reason || points === undefined) {
-            return res.status(400).json({
-                success: false,
-                message: "name, reason and points are required"
-            });
+        if (!name || !reason || points === undefined || !teacher) {
+            return res.status(400).json({ success: false, message: "All fields required" });
         }
 
-        const commit = new Unicorn_House_Commits({ name, reason, points });
+        const commit = new Unicorn_House_Commits({ name, reason, points, teacher });
         await commit.save();
 
-        await House.findOneAndUpdate({name: "unicorn"}, {$inc: {points: points}}, {new: true})
+        await House.findOneAndUpdate(
+            { name: "unicorn" },
+            { $inc: { points: points } }
+        );
 
-        res.status(201).json({ success: true, message: "Commit added", data: commit });
+        res.status(201).json({ success: true, message: "Commit added" });
+
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ success: false, message: "server error" });
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
@@ -182,41 +195,26 @@ app.post("/api/unicorn_commit", async (req, res) => {
 // ---------------------- POST: Trojan ----------------------
 app.post("/api/trojan_commit", async (req, res) => {
     try {
-        const { name, reason, points } = req.body;
+        const { name, reason, points, teacher } = req.body;
 
-        if (!name || !reason || points === undefined) {
-            return res.status(400).json({
-                success: false,
-                message: "name, reason and points are required"
-            });
+        if (!name || !reason || points === undefined || !teacher) {
+            return res.status(400).json({ success: false, message: "All fields required" });
         }
 
-        const commit = new Trojan_House_Commits({ name, reason, points });
+        const commit = new Trojan_House_Commits({ name, reason, points, teacher });
         await commit.save();
 
-        await House.findOneAndUpdate({name: "trojan"}, {$inc: {points: points}}, {new: true})
-
-        res.status(201).json({ success: true, message: "Commit added", data: commit });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ success: false, message: "server error" });
-    }
-});
-
-app.get('/api/house-points', async (req, res) => {
-    try {
-        const houses = await House.find();
-        res.json(
-            houses.map(h => ({
-                houseName: h.name,
-                points: h.points
-            }))
+        await House.findOneAndUpdate(
+            { name: "trojan" },
+            { $inc: { points: points } }
         );
+
+        res.status(201).json({ success: true, message: "Commit added" });
+
     } catch (err) {
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
-
 
 connectDB().then(() => {
     app.listen(port, () => {

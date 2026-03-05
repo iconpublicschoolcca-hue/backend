@@ -216,6 +216,32 @@ app.post("/api/trojan_commit", async (req, res) => {
     }
 });
 
+app.post("/api/admin-login", (req, res) => {
+
+    const { password } = req.body;
+
+    const PASSWORDS = {
+        [process.env.ADMIN_PASS_1]: "Admin",
+        [process.env.ADMIN_PASS_2]: "Rebecca maam",
+        [process.env.ADMIN_PASS_3]: "Sarita maam"
+    };
+
+    const authorizedBy = PASSWORDS[password];
+
+    if (!authorizedBy) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid password"
+        });
+    }
+
+    res.json({
+        success: true,
+        authorizedBy
+    });
+
+});
+
 connectDB().then(() => {
     app.listen(port, () => {
         console.log(`Connected to PORT: ${port}`);
